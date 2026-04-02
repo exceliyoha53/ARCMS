@@ -1,5 +1,3 @@
-from typing import Optional
-
 PROBATION_THRESHOLD = 1.00
 GRADUATION_MINIMUM = 1.50
 
@@ -160,7 +158,7 @@ def compute_semester_result(courses: list[dict]) -> dict:
 
     total_units_passed = sum(c["credit_units"] for c in courses if c["grade"] != "F")
 
-    carry_over_count = sum(1 for c in courses if c["grade" == "F"])
+    carry_over_count = sum(1 for c in courses if c["grade"] == "F")
 
     return {
         "gpa": gpa,
