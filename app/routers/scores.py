@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException, status, Depends, UploadFile, File, Form
-from app.auth import require_lecturer, require_hod, get_current_user
+from app.auth import require_lecturer, require_hod
 from app.database import get_connection, return_connection, get_db_cursor
 from app.services.excel_parser import parse_score_sheet  # reads the excel file
 from app.services.gpa_service import recalculate_student_gpa  # triggered after approval
@@ -34,13 +34,13 @@ async def upload_scores(
     Raises:
         HTTPException 400: If file is not .xlsx or validation fails
         HTTPException 404: If course offering not found
-        """
+    """
     if not file.filename.endswith(".xlsx"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only .xlsx files are accepted"
         )
-    
+
     conn = get_connection()
     cursor = get_db_cursor(conn)
 
@@ -60,8 +60,6 @@ async def upload_scores(
         file_bytes = await file.read() # read from memory - no disk writes
         file_buffer = io.BytesIO(file_bytes) # wrap bytes so openpyxl can read it
 
-        # parse the excel file - returns a list of validated ScoreUpload objects
-        # and a list of row errors for any rows that failed validation
         parsed_scores, errors = parse_score_sheet(file_buffer)
 
         if errors:
@@ -90,7 +88,7 @@ async def upload_scores(
 
             student = cursor.fetchone()
 
-            if not student: # student not registered in the syster - skip with warning
+            if not student: # student not registered in the system - skip with warning
                 logger.warning(f"Student not found: {score_data.matric_number}")
                 continue
 
@@ -138,19 +136,19 @@ async def upload_scores(
 
             saved_count += 1
 
-            conn.commit()
-            logger.info(
-            f"Score upload complete for offering {course_offering_id} "
-            f"by {current_user['email']} — {saved_count} records saved"
-            )
+        conn.commit()
+        logger.info(
+        f"Score upload complete for offering {course_offering_id} "
+        f"by {current_user['email']} — {saved_count} records saved"
+        )
 
-            return {
-                "message": "Upload successful",
-                "course_offering_id": course_offering_id,
-                "records_saved": saved_count,
-                "status": "pending_approval"
-            }
-        
+        return {
+            "message": "Upload successful",
+            "course_offering_id": course_offering_id,
+            "records_saved": saved_count,
+            "status": "pending_approval"
+        }
+    
     except HTTPException:
         raise
 
@@ -161,7 +159,7 @@ async def upload_scores(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Score upload failed"
         )
-    
+
     finally:
         cursor.close()
         return_connection(conn)
@@ -194,7 +192,7 @@ async def get_pending_scores(
                 MAX(s.uploaded_at) AS last_uploaded_at
             FROM scores s
             JOIN registrations r ON s.registration_id = r.id
-            JOIN course_offerings ON r.course_offering_id = co.id
+            JOIN course_offerings co ON r.course_offering_id = co.id
             JOIN courses c ON co.course_id = c.id
             WHERE s.approval_status = 'pending'
             GROUP BY co.id, c.code, c.title, c.credit_units
@@ -216,6 +214,7 @@ async def get_pending_scores(
     finally:
         cursor.close()
         return_connection(conn)
+
 
 @router.post("/approve/{course_offering_id}")
 async def approve_scores(
