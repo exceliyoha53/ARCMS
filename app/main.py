@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 
 from app.routers import auth, scores, results, transcript, admin
@@ -72,7 +71,7 @@ async def root():
     """
     return {
         "system": "ARCMS - Air Force Institute of Technology",
-        "status": "onine",
+        "status": "online",
         "version": "1.0.0",
         "docs": "/docs"
     }
