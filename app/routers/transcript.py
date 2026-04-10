@@ -1,6 +1,7 @@
 import logging
-from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.responses import FileResponse # returns a file download
+import os
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
+from fastapi.responses import FileResponse  # returns a file download
 from app.auth import get_current_user
 from app.database import get_connection, return_connection, get_db_cursor
 from app.services.transcript_service import generate_transcript_pdf
@@ -10,11 +11,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/transcript", tags=["Transcript"])
 
+
 @router.get("/generate/{matric_number}")
-async def generate_transcripts(
+def generate_transcripts(
     matric_number: str,
+    background_tasks: BackgroundTasks,
     purpose: str = "general",
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ) -> FileResponse:
     """
     Generates and returns an official PDF transcript for a student.
@@ -38,7 +41,8 @@ async def generate_transcripts(
     cursor = get_db_cursor(conn)
 
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT s.id, s.matric_number, s.first_name, s.last_name,
                 s.entry_year, s.current_level,
                 d.name AS department,
@@ -47,31 +51,34 @@ async def generate_transcripts(
             JOIN departments d ON s.department_id = d.id
             JOIN programmes p ON s.programme_id = p.id
             WHERE s.matric_number = %s
-        """, (matric_number.upper(),))
+        """,
+            (matric_number.upper(),),
+        )
 
         student = cursor.fetchone()
-            
+
         if not student:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Student {matric_number} not found"
+                detail=f"Student {matric_number} not found",
             )
-        
-        #students can only generate their own transcript
+
+        # students can only generate their own transcript
         if current_user["role"] == "student":
             cursor.execute(
                 "SELECT matric_number FROM students WHERE user_id = "
                 "(SELECT id FROM users WHERE email = %s)",
-                (current_user["email"],)
+                (current_user["email"],),
             )
             own_record = cursor.fetchone()
             if not own_record or own_record["matric_number"] != matric_number.upper():
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You can only generate your own transcript"
+                    detail="You can only generate your own transcript",
                 )
-            
-        cursor.execute("""
+
+        cursor.execute(
+            """
             SELECT
                 c.code AS course_code,
                 c.title AS course_title,
@@ -84,14 +91,9 @@ async def generate_transcripts(
                 sem.id AS semester_id,
                 sem.semester_number,
                 sess.name AS session_name,
-                (s2.current_level - (
-                SELECT COUNT(DISTINCT sem2.session_id)
-                FROM semesters sem2
-                WHERE sem2.id <= sem.id
-                ) * 100) AS level
+                r.level AS level
             FROM scores sc
             JOIN registrations r ON sc.registration_id = r.id
-            JOIN students s2 ON r.student_id = s2.id
             JOIN course_offerings co ON r.course_offering_id = co.id
             JOIN courses c ON co.course_id = c.id
             JOIN semesters sem ON co.semester_id = sem.id
@@ -99,41 +101,54 @@ async def generate_transcripts(
             WHERE r.student_id = %s
             AND sc.approval_status = 'approved'
             ORDER BY sess.name, sem.semester_number, c.code
-        """, (student["id"],))
-        
+        """,
+            (student["id"],),
+        )
+
         all_results = [dict(row) for row in cursor.fetchall()]
 
         if not all_results:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No approved results found for this student"
+                detail="No approved results found for this student",
             )
-        
-        cursor.execute("""
+
+        cursor.execute(
+            """
             SELECT sr.semester_id, sr.gpa, sr.cgpa, sr.total_units_registered
             FROM semester_results sr
             WHERE sr.student_id = %s
             ORDER BY sr.semester_id
-        """, (student["id"],))
+        """,
+            (student["id"],),
+        )
 
         semester_gpas = {row["semester_id"]: dict(row) for row in cursor.fetchall()}
         # .values() ignores keys gives only values
-        final_cgpa = max((v["cgpa"] for v in semester_gpas.values() if v["cgpa"] is not None), default=0.0)
+        final_cgpa = max(
+            (v["cgpa"] for v in semester_gpas.values() if v["cgpa"] is not None),
+            default=0.0,
+        )
 
         degree_classification = get_degree_classification(final_cgpa)
-        #record transcript generation for audit trail
+        # record transcript generation for audit trail
         cursor.execute(
-            "SELECT id FROM users WHERE email = %s",
-            (current_user["email"],)
+            "SELECT id FROM users WHERE email = %s", (current_user["email"],)
         )
         requester = cursor.fetchone()
 
-        cursor.execute("""
+        if not requester:
+            raise HTTPException(
+                status_code=401, detail="Requester account not found in database."
+            )
+
+        cursor.execute(
+            """
              INSERT INTO transcript_requests (student_id, generated_by, purpose)
             VALUES (%s, %s, %s)
-        """, (student["id"], requester["id"], purpose))
-
-        conn.commit()
+        """,
+            (student["id"], requester["id"], purpose),
+        )
 
         # build transcript data structure for PDF generation
         transcript_data = {
@@ -142,23 +157,26 @@ async def generate_transcripts(
             "semester_gpas": semester_gpas,
             "final_cgpa": final_cgpa,
             "degree_classification": degree_classification,
-            "purpose": purpose
+            "purpose": purpose,
         }
 
-        pdf_path = await generate_transcript_pdf(transcript_data)
+        pdf_path = generate_transcript_pdf(transcript_data)
+
+        conn.commit()
 
         logger.info(
-           f"Transcript generated for {matric_number} "
-           f"by {current_user['email']} — purpose: {purpose}"
+            f"Transcript generated for {matric_number} "
+            f"by {current_user['email']} — purpose: {purpose}"
         )
 
+        background_tasks.add_task(os.remove, pdf_path)
         # return pdf as downloadable file
         return FileResponse(
             path=pdf_path,
             media_type="application/pdf",
-            filename=f"transcript_{matric_number}.pdf"
+            filename=f"transcript_{matric_number}.pdf",
         )
-    
+
     except HTTPException:
         raise
 
@@ -167,9 +185,9 @@ async def generate_transcripts(
         logger.error(f"Transcript generation error for {matric_number}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Transcript generation failed"
+            detail="Transcript generation failed",
         )
-    
+
     finally:
         cursor.close()
         return_connection(conn)

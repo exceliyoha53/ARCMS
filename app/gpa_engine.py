@@ -18,7 +18,7 @@ def get_grade(total_score: float) -> tuple[str, float]:
     """
     if not (0 <= total_score <= 100):
         raise ValueError(f"Score {total_score} is outside valid range 0-100")
-    
+
     if total_score >= 70:
         return "A", 5.0
     elif total_score >= 60:
@@ -31,7 +31,7 @@ def get_grade(total_score: float) -> tuple[str, float]:
         return "E", 1.0
     else:
         return "F", 0.0
-    
+
 
 def calculate_gpa(courses: list[dict]) -> float:
     """
@@ -57,10 +57,8 @@ def calculate_gpa(courses: list[dict]) -> float:
     """
     if not courses:
         return 0.0
-    
-    total_weighted_points = sum(
-        c["credit_units"] * c["grade_point"] for c in courses
-    )
+
+    total_weighted_points = sum(c["credit_units"] * c["grade_point"] for c in courses)
 
     total_units = sum(c["credit_units"] for c in courses)
 
@@ -110,7 +108,7 @@ def get_degree_classification(cgpa: float) -> str:
         return "Third Class Honours"
     else:
         return "Fail"
-    
+
 
 def get_academic_standing(cgpa: float) -> str:
     """

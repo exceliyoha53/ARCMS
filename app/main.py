@@ -14,13 +14,11 @@ load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
-    handlers=[
-        logging.FileHandler("arcms.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler("arcms.log"), logging.StreamHandler(sys.stdout)],
 )
 
 logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,6 +33,7 @@ async def lifespan(app: FastAPI):
     connection_pool.closeall()
     logger.info("Database pool closed. ARCMS shut down cleanly.")
 
+
 app = FastAPI(
     title="ARCMS - Academic Result & Course Management System",
     description=(
@@ -43,12 +42,12 @@ app = FastAPI(
         "student result checking, and transcript generation."
     ),
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # allow all origins for now
+    allow_origins=["*"],  # allow all origins for now
     allow_credentials=True,  # Allows cookies or authentication headers
     allow_methods=["*"],  # allow GET, POST, PUT, DELETE
     allow_headers=["*"],  # allow all headers including Authorization
@@ -63,6 +62,7 @@ app.include_router(results.router)
 app.include_router(transcript.router)
 app.include_router(admin.router)
 
+
 @app.get("/", tags=["Health"])
 async def root():
     """
@@ -73,8 +73,9 @@ async def root():
         "system": "ARCMS - Air Force Institute of Technology",
         "status": "online",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
     }
+
 
 @app.get("/health", tags=["Health"])
 async def health_check():
@@ -87,5 +88,5 @@ async def health_check():
         "status": "healthy",
         "database": "connected",
         "institution": "AFIT",
-        "version": "1.0.0"
+        "version": "1.0.0",
     }

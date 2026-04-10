@@ -6,16 +6,18 @@ from datetime import datetime
 
 # ---- AUTH SCHEMAS ----------------------------------
 
+
 class UserCreate(BaseModel):
     """
     Request schema for creating any user account.
     Role determines what the user can access in the system.
-    
+
     Parameters:
         email (EmailStr): Valid email address
         password (str): Raw password — will be hashed before storage
         role (str): One of student, lecturer, hod, exam_officer, registrar
     """
+
     email: EmailStr
     password: str
     role: str
@@ -33,11 +35,12 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     """
     Request schema for login.
-    
+
     Parameters:
         email (EmailStr): User's email
         password (str): Raw password to verify
     """
+
     email: EmailStr
     password: str
 
@@ -46,12 +49,13 @@ class TokenResponse(BaseModel):
     """
     Response schema for successful login.
     Returns JWT token and its type.
-    
+
     Parameters:
         access_token (str): Signed JWT string
         token_type (str): Always 'bearer'
         role (str): The user's role - frontend uses this to render correct dashboard
     """
+
     access_token: str
     token_type: str
     role: str
@@ -68,18 +72,21 @@ class UserResponse(BaseModel):
         role (str): User's role
         created_at (datetime): Account creation timestamp
     """
+
     id: int
     email: str
     role: str
     created_at: datetime
 
+
 # ----- STUDENT SCHEMAS --------------------------------------
+
 
 class StudentCreate(BaseModel):
     """
     Request schema for registering a new student.
     Validates matric number format against AFIT pattern.
-    
+
     Parameters:
         user_id (int): The users table ID this student links to
         matric_number (str): AFIT matric format e.g. U22TE1022
@@ -90,6 +97,7 @@ class StudentCreate(BaseModel):
         entry_year (int): Year of entry e.g. 2022
         current_level (int): 100, 200, 300, 400, or 500
     """
+
     user_id: int
     matric_number: str
     first_name: str
@@ -107,11 +115,10 @@ class StudentCreate(BaseModel):
         Pattern: U + 2-digit year + 2 or 3-letter dept code + 4-digit number
         Example: U22TE1022
         """
-        pattern = r'^[A-Z]\d{2}[A-Z]{2,4}\d{3,5}$'
+        pattern = r"^[A-Z]\d{2}[A-Z]{2,4}\d{3,5}$"
         if not re.match(pattern, v.upper()):
             raise ValueError(
-                f"Invalid matric number format: {v}. "
-                f"Expected format: U22TE1022"
+                f"Invalid matric number format: {v}. Expected format: U22TE1022"
             )
         return v.upper()
 
@@ -123,7 +130,7 @@ class StudentCreate(BaseModel):
             raise ValueError("Level must be 100, 200, 300, 400, or 500")
         return v
 
-   
+
 class StudentResponse(BaseModel):
     """
     Response schema for student data.
@@ -136,6 +143,7 @@ class StudentResponse(BaseModel):
         current_level (int): Current academic level
         status (str): active, probation, withdrawn, or graduated
     """
+
     id: int
     matric_number: str
     first_name: str
@@ -143,7 +151,9 @@ class StudentResponse(BaseModel):
     current_level: int
     status: str
 
-#------ SCORE SCHEMAS ------------------------------------------
+
+# ------ SCORE SCHEMAS ------------------------------------------
+
 
 class ScoreUpload(BaseModel):
     """
@@ -156,6 +166,7 @@ class ScoreUpload(BaseModel):
         ca_score (float): Continuous assessment score out of 30
         exam_score (float): Examination score out of 70
     """
+
     matric_number: str
     ca_score: float
     exam_score: float
@@ -167,7 +178,7 @@ class ScoreUpload(BaseModel):
         if not (0 <= v <= 30):
             raise ValueError(f"CA score {v} is invalid. Must be between 0 and 30")
         return round(v, 2)
-    
+
     @field_validator("exam_score")
     @classmethod
     def validate_exam(cls, v: float) -> float:
@@ -191,6 +202,7 @@ class ScoreResponse(BaseModel):
         grade_point (float): Grade point 0.0-5.0
         approval_status (str): pending, approved, or rejected
     """
+
     id: int
     matric_number: str
     ca_score: float
@@ -199,6 +211,7 @@ class ScoreResponse(BaseModel):
     grade: str
     grade_point: float
     approval_status: str
+
 
 class BulkScoreUpload(BaseModel):
     """
@@ -209,11 +222,13 @@ class BulkScoreUpload(BaseModel):
         course_offering_id (int): Which course offering these scores belong to
         scores (list[ScoreUpload]): List of student scores from the Excel file
     """
+
     course_offering_id: int
     scores: list[ScoreUpload]
 
 
-#--------- RESULT SCHEMAS ---------------------------------------------
+# --------- RESULT SCHEMAS ---------------------------------------------
+
 
 class SemesterResultResponse(BaseModel):
     """
@@ -227,6 +242,7 @@ class SemesterResultResponse(BaseModel):
         total_units_passed (int): Units passed
         academic_standing (str): good_standing, poor_standing, or probation
     """
+
     semester_id: int
     gpa: float
     cgpa: float
@@ -239,7 +255,7 @@ class CourseResultResponse(BaseModel):
     """
     Response schema for a single course result.
     Used in result sheets and transcripts.
-    
+
     Parameters:
         course_code (str): e.g. TCE401
         course_title (str): Full course name
@@ -250,6 +266,7 @@ class CourseResultResponse(BaseModel):
         grade (str): Letter grade
         grade_point (float): Grade point value
     """
+
     course_code: str
     course_title: str
     credit_units: int
@@ -258,6 +275,7 @@ class CourseResultResponse(BaseModel):
     total_score: float
     grade: str
     grade_point: float
+
 
 # ----- TRANSCRIPT SCHEMAS -------------------------------------
 class TranscriptRequest(BaseModel):
@@ -268,8 +286,10 @@ class TranscriptRequest(BaseModel):
         student_id (int): The student's database ID
         purpose (Optional[str]): Reason for transcript e.g. scholarship, postgraduate
     """
+
     student_id: int
     purpose: Optional[str] = None
+
 
 class TranscriptSemesterBlock(BaseModel):
     """
@@ -285,6 +305,7 @@ class TranscriptSemesterBlock(BaseModel):
         cgpa (float): Cumulative GPA after this semester
         total_units (int): Units registered that semester
     """
+
     session_name: str
     semester_number: int
     level: int
@@ -292,6 +313,7 @@ class TranscriptSemesterBlock(BaseModel):
     gpa: float
     cgpa: float
     total_units: int
+
 
 class TranscriptResponse(BaseModel):
     """
@@ -308,6 +330,7 @@ class TranscriptResponse(BaseModel):
         degree_classification (str): e.g. First Class Honours
         generated_at (datetime): When this transcript was generated
     """
+
     matric_number: str
     full_name: str
     programme: str

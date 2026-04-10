@@ -21,18 +21,20 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
 def hash_password(password: str) -> str:
-     """
+    """
      Hashes a plain text password using bcrypt.
      One-way hash - original password cannot be recovered.
-     
+
      Parameters:
         password (str): Raw password from registration
-    
+
     Returns:
         str: bcrypt hash to store in database
     """
-     return pwd_context.hash(password)
+    return pwd_context.hash(password)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
@@ -47,6 +49,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Creates a signed JWT access token.
@@ -60,11 +63,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         str: Signed JWT token string
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode.update({"exp": expire})
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     logger.info(f"Token created for: {data.get('sub')} role: {data.get('role')}")
     return token
+
 
 def decode_access_token(token: str) -> Optional[dict]:
     """
@@ -83,6 +89,7 @@ def decode_access_token(token: str) -> Optional[dict]:
     except JWTError as e:
         logger.warning(f"Invalid token: {e}")
         return None
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     """
@@ -111,8 +118,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
 
     if email is None or role is None:
         raise credentials_exception
-    
+
     return {"email": email, "role": role}
+
 
 def require_role(*allowed_roles: str):
     """
@@ -129,6 +137,7 @@ def require_role(*allowed_roles: str):
     Raises:
         HTTPException 403: If the user's role is not in allowed_roles
     """
+
     async def role_checker(current_user: dict = Depends(get_current_user)) -> dict:
         if current_user["role"] not in allowed_roles:
             logger.warning(
@@ -137,13 +146,17 @@ def require_role(*allowed_roles: str):
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access restricted. Required role: {', '.join(allowed_roles)}"
+                detail=f"Access restricted. Required role: {', '.join(allowed_roles)}",
             )
         return current_user
+
     return role_checker
 
+
 require_student = require_role("student")
-require_lecturer = require_role("lecturer", "hod", "exam_officer")  # hod and exam officer can also upload
+require_lecturer = require_role(
+    "lecturer", "hod", "exam_officer"
+)  # hod and exam officer can also upload
 require_hod = require_role("hod")
 require_exam_officer = require_role("exam_officer", "hod")
 require_registrar = require_role("registrar")
