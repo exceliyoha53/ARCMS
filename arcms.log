@@ -1,3 +1,47 @@
 2026-04-10 12:07:32,378 [INFO] app.main — ARCMS connection starting up...
 2026-04-10 12:07:32,445 [INFO] app.main — Database connection pool initialized
 2026-04-10 12:15:27,150 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 16:52:03,622 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 16:52:03,638 [INFO] app.main — Database connection pool initialized
+2026-04-10 17:16:46,256 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 17:18:58,658 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 17:18:58,659 [INFO] app.main — Database connection pool initialized
+2026-04-10 17:22:20,296 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 17:22:28,043 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 17:22:28,045 [INFO] app.main — Database connection pool initialized
+2026-04-10 17:26:01,508 [WARNING] passlib.handlers.bcrypt — (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\hp\ARCMS\venv\lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-10 17:26:01,726 [ERROR] app.routers.auth — Registration error for exceliyoha103@gmail.com: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+2026-04-10 17:30:19,503 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 17:33:30,380 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 17:33:30,381 [INFO] app.main — Database connection pool initialized
+2026-04-10 17:37:11,973 [ERROR] app.routers.auth — Registration error for exceliyoha103@gmail.com: name 'current_user' is not defined
+2026-04-10 17:38:45,585 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 17:41:39,342 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 17:41:39,344 [INFO] app.main — Database connection pool initialized
+2026-04-10 17:47:39,397 [INFO] app.auth — Token created for: exceliyoha103@gmail.com role: registrar
+2026-04-10 17:47:39,397 [INFO] app.routers.auth — User logged in: exceliyoha103@gmail.com role: registrar
+2026-04-10 17:49:51,299 [INFO] app.auth — Token created for: exceliyoha103@gmail.com role: registrar
+2026-04-10 17:49:51,300 [INFO] app.routers.auth — User logged in: exceliyoha103@gmail.com role: registrar
+2026-04-10 17:53:59,159 [INFO] app.routers.admin — Department created: TED by exceliyoha103@gmail.com
+2026-04-10 17:55:05,696 [INFO] app.routers.admin — Session 2025/2026 created by exceliyoha103@gmail.com
+2026-04-10 18:00:59,122 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 22:45:31,621 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 22:45:31,773 [INFO] app.main — Database connection pool initialized
+2026-04-10 23:00:02,449 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-10 23:02:24,145 [INFO] app.main — ARCMS connection starting up...
+2026-04-10 23:02:24,147 [INFO] app.main — Database connection pool initialized
+2026-04-10 23:09:08,501 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 00:13:48,310 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 00:13:48,328 [INFO] app.main — Database connection pool initialized
+2026-04-11 00:21:31,782 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 00:30:56,728 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 00:30:56,754 [INFO] app.main — Database connection pool initialized
+2026-04-11 00:32:22,444 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 00:32:22,447 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 00:34:32,855 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 00:34:32,855 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 00:36:15,344 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.

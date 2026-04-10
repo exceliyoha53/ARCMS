@@ -9,9 +9,8 @@ logger = logging.getLogger(__name__)
 OUTPUT_DIR = "generated_transcripts"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # create folder if it doesn't exist
 
-template_env = Environment(
-    loader=FileSystemLoader("app/templates/transcript")
-)
+template_env = Environment(loader=FileSystemLoader("app/templates/transcript"))
+
 
 def generate_transcript_pdf(transcript_data: dict) -> str:
     """
@@ -45,7 +44,7 @@ def generate_transcript_pdf(transcript_data: dict) -> str:
         key = (
             result["session_name"],
             result["semester_number"],
-            result.get("level", "N/A")
+            result.get("level", "N/A"),
         )
         if key not in semesters:
             semesters[key] = []
@@ -59,27 +58,33 @@ def generate_transcript_pdf(transcript_data: dict) -> str:
             semester_id = courses[0]["semester_id"]
             gpa_data = semester_gpas.get(semester_id, {})
 
-            semester_blocks.append({
-            "session_name": session_name,
-            "semester_number": semester_number,
-            "level": level,
-            "courses": courses,
-            "gpa": gpa_data.get("gpa", 0.0),
-            "cgpa": gpa_data.get("cgpa", 0.0),
-            "total_units": gpa_data.get("total_units_registered", 0)
-            })
+            semester_blocks.append(
+                {
+                    "session_name": session_name,
+                    "semester_number": semester_number,
+                    "level": level,
+                    "courses": courses,
+                    "gpa": gpa_data.get("gpa", 0.0),
+                    "cgpa": gpa_data.get("cgpa", 0.0),
+                    "total_units": gpa_data.get("total_units_registered", 0),
+                }
+            )
 
         template = template_env.get_template("transcript.html")
         html_content = template.render(
-        student=student,
-        semester_blocks=semester_blocks,
-        final_cgpa=final_cgpa,
-        degree_classification=degree_classification,
-        generated_at=datetime.now().strftime("%B %d, %Y at %I:%M %p"),
-        institution_name=os.getenv("INSTITUTION_NAME", "Air Force Institute of Technology"),
-        institution_address=os.getenv("INSTITUTION_ADDRESS", "PMB 2104, Kaduna, Nigeria")
-    )
-    
+            student=student,
+            semester_blocks=semester_blocks,
+            final_cgpa=final_cgpa,
+            degree_classification=degree_classification,
+            generated_at=datetime.now().strftime("%B %d, %Y at %I:%M %p"),
+            institution_name=os.getenv(
+                "INSTITUTION_NAME", "Air Force Institute of Technology"
+            ),
+            institution_address=os.getenv(
+                "INSTITUTION_ADDRESS", "PMB 2104, Kaduna, Nigeria"
+            ),
+        )
+
     # generate unique filename using matric number and timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"transcript_{student['matric_number']}_{timestamp}.pdf"

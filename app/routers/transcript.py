@@ -125,10 +125,9 @@ def generate_transcripts(
 
         semester_gpas = {row["semester_id"]: dict(row) for row in cursor.fetchall()}
         # .values() ignores keys gives only values
-        final_cgpa = max(
-            (v["cgpa"] for v in semester_gpas.values() if v["cgpa"] is not None),
-            default=0.0,
-        )
+        
+        latest_semester = max(semester_gpas.keys(), default=None)
+        final_cgpa = semester_gpas[latest_semester]["cgpa"] if latest_semester else 0.0
 
         degree_classification = get_degree_classification(final_cgpa)
         # record transcript generation for audit trail
