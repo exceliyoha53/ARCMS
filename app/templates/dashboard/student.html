@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Student Portal{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">My Academic Record</div>
+<a class="nav-item active" onclick="showSection('results')">
+    <span class="nav-icon">◈</span> My Results
+</a>
+<a class="nav-item" onclick="showSection('transcript')">
+    <span class="nav-icon">◉</span> Get Transcript
+</a>
+{% endblock %}
+
+{% block page_title %}Student Portal{% endblock %}
+
+{% block content %}
+
+<div id="section-results">
+    <div class="alert" id="resultsAlert"></div>
+
+    <div id="studentSummary" style="display:none;margin-bottom:24px">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Current CGPA</div>
+                <div class="stat-value" id="cgpaValue">—</div>
+                <div class="stat-sub" id="classificationValue">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Matric Number</div>
+                <div class="stat-value" id="matricValue" style="font-size:22px">—</div>
+                <div class="stat-sub" id="programmeValue">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Academic Standing</div>
+                <div class="stat-value" id="standingValue" style="font-size:22px">—</div>
+                <div class="stat-sub" id="departmentValue">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="semesterResults"></div>
+
+    <div id="loadResultsPrompt" style="text-align:center;padding:60px 0">
+        <div style="font-size:48px;margin-bottom:16px">◈</div>
+        <p style="color:var(--grey);margin-bottom:20px">
+            Enter your matric number to view your results
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;max-width:400px;margin:0 auto">
+            <input type="text" id="matricInput" placeholder="e.g. U22TE1022" style="flex:1">
+            <button class="btn btn-primary" onclick="loadResults()">
+                Load Results
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="section-transcript" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Generate Official Transcript</div>
+        <div class="alert" id="transcriptAlert"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Matric Number</label>
+                <input type="text" id="transcriptMatric" placeholder="e.g. U22TE1022">
+            </div>
+            <div class="form-group">
+                <label>Purpose</label>
+                <select id="transcriptPurpose">
+                    <option value="general">General</option>
+                    <option value="scholarship">Scholarship Application</option>
+                    <option value="postgraduate">Postgraduate Admission</option>
+                    <option value="employment">Employment</option>
+                    <option value="nysc">NYSC</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" id="transcriptBtn" onclick="generateTranscript()">
+            Generate & Download PDF
+        </button>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card-title">About Your Transcript</div>
+        <p style="color:var(--grey);font-size:14px;line-height:1.7">
+            Your official transcript includes all approved semester results
+            from your first semester to date. It shows each course, your
+            CA and exam scores, grades, semester GPA, and cumulative CGPA.
+            The transcript is signed and stamped by the Registrar's office
+            to be considered official.
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showSection(name) {
+        ['results', 'transcript'].forEach(s => {
+            document.getElementById(`section-${s}`).style.display = 'none';
+        });
+        document.getElementById(`section-${name}`).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        event.target.closest('.nav-item').classList.add('active');
+    }
+
+    async function loadResults() {
+        const matric = document.getElementById('matricInput').value.trim();
+        if (!matric) return;
+
+        const res = await api('GET', `/results/${matric}`);
+        if (!res.ok) {
+            const data = await res.json();
+            showAlert('resultsAlert', data.detail || 'Could not load results', 'error');
+            return;
+        }
+
+        const data = await res.json();
+        const student = data.student;
+
+        // show summary cards
+        document.getElementById('cgpaValue').textContent =
+            data.latest_cgpa ? data.latest_cgpa.toFixed(2) : '—';
+        document.getElementById('matricValue').textContent = student.matric_number;
+        document.getElementById('programmeValue').textContent = student.programme;
+        document.getElementById('departmentValue').textContent = student.department;
+        document.getElementById('standingValue').textContent =
+            student.status.replace('_', ' ').toUpperCase();
+
+        // classify CGPA
+        const cgpa = data.latest_cgpa || 0;
+        let classification = 'N/A';
+        if (cgpa >= 4.5) classification = 'First Class Honours';
+        else if (cgpa >= 3.5) classification = '2nd Class Upper';
+        else if (cgpa >= 2.4) classification = '2nd Class Lower';
+        else if (cgpa >= 1.5) classification = 'Third Class';
+        else if (cgpa > 0) classification = 'Fail';
+        document.getElementById('classificationValue').textContent = classification;
+
+        document.getElementById('studentSummary').style.display = 'block';
+        document.getElementById('loadResultsPrompt').style.display = 'none';
+
+        // render semester blocks
+        const container = document.getElementById('semesterResults');
+        container.innerHTML = data.semesters.map(sem => `
+            <div class="table-container" style="margin-bottom:20px">
+                <div class="table-header">
+                    <div class="table-title">
+                        ${sem.session_name} — Semester ${sem.semester_number}
+                    </div>
+                    <div style="font-size:13px;color:var(--grey)">
+                        GPA: <strong style="color:var(--green)">${sem.gpa.toFixed(2)}</strong>
+                        &nbsp;|&nbsp;
+                        CGPA: <strong style="color:var(--white)">${sem.cgpa.toFixed(2)}</strong>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Course Title</th>
+                            <th>Units</th>
+                            <th>CA</th>
+                            <th>Exam</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sem.courses.map(c => `
+                            <tr>
+                                <td><strong>${c.course_code}</strong></td>
+                                <td>${c.course_title}</td>
+                                <td>${c.credit_units}</td>
+                                <td>${c.ca_score}</td>
+                                <td>${c.exam_score}</td>
+                                <td>${c.total_score}</td>
+                                <td><strong style="color:${gradeColor(c.grade)}">${c.grade}</strong></td>
+                                <td>${c.grade_point}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `).join('');
+
+        // prefill transcript matric
+        document.getElementById('transcriptMatric').value = matric;
+    }
+
+    function gradeColor(grade) {
+        if (grade === 'A') return 'var(--green)';
+        if (grade === 'B') return '#4ecdc4';
+        if (grade === 'C') return 'var(--white)';
+        if (grade === 'D' || grade === 'E') return 'var(--gold)';
+        return 'var(--error)';
+    }
+
+    async function generateTranscript() {
+        const matric = document.getElementById('transcriptMatric').value.trim();
+        const purpose = document.getElementById('transcriptPurpose').value;
+        if (!matric) return showAlert('transcriptAlert', 'Enter your matric number', 'error');
+
+        const btn = document.getElementById('transcriptBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span>Generating PDF...';
+
+        const res = await api('GET', `/transcript/generate/${matric}?purpose=${purpose}`);
+
+        if (res.ok) {
+            // download the PDF
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transcript_${matric}.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showAlert('transcriptAlert', 'Transcript downloaded successfully');
+        } else {
+            const data = await res.json();
+            showAlert('transcriptAlert', data.detail || 'Generation failed', 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Generate & Download PDF';
+    }
+</script>
+{% endblock %}

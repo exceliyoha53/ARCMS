@@ -45,3 +45,25 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-04-11 00:34:32,855 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
 2026-04-11 00:34:32,855 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
 2026-04-11 00:36:15,344 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 11:58:01,166 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 11:58:01,273 [INFO] app.main — Database connection pool initialized
+2026-04-11 11:58:39,953 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 11:58:46,502 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 11:58:46,503 [INFO] app.main — Database connection pool initialized
+2026-04-11 11:58:52,614 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 11:59:00,491 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 11:59:00,492 [INFO] app.main — Database connection pool initialized
+2026-04-11 11:59:00,655 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 11:59:08,549 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 11:59:08,550 [INFO] app.main — Database connection pool initialized
+2026-04-11 12:07:46,734 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 12:07:53,796 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 12:07:53,797 [INFO] app.main — Database connection pool initialized
+2026-04-11 12:10:40,388 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 12:10:40,388 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 12:27:26,842 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 12:27:26,843 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 12:37:05,669 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 12:37:24,104 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 12:37:24,105 [INFO] app.main — Database connection pool initialized
+2026-04-11 12:37:45,007 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Lecturer Dashboard{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">Score Management</div>
+<a class="nav-item active" onclick="showSection('upload')">
+    <span class="nav-icon">◈</span> Upload Scores
+</a>
+<a class="nav-item" onclick="showSection('history')">
+    <span class="nav-icon">◉</span> Upload History
+</a>
+{% endblock %}
+
+{% block page_title %}Lecturer Portal{% endblock %}
+
+{% block content %}
+
+<div id="section-upload">
+    <div class="form-card">
+        <div class="form-card-title">Upload Score Sheet</div>
+        <div class="alert" id="uploadAlert"></div>
+
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Course Offering ID</label>
+                <input type="number" id="courseOfferingId" placeholder="Enter course offering ID from admin">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px">
+            <label>Score Sheet (.xlsx only)</label>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+                ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="upload-icon">📊</div>
+                <p><strong>Click to select</strong> or drag and drop your Excel file here</p>
+                <p style="margin-top:8px;font-size:12px">
+                    Required columns: matric_number, ca_score, exam_score
+                </p>
+            </div>
+            <input type="file" id="fileInput" accept=".xlsx" style="display:none" onchange="handleFileSelect(event)">
+        </div>
+
+        <div id="filePreview" style="display:none;margin-bottom:20px">
+            <div style="background:rgba(0,184,148,0.08);border:1px solid var(--green);
+                padding:12px 16px;display:flex;align-items:center;gap:12px">
+                <span>📄</span>
+                <span id="fileName" style="color:var(--green);font-size:14px"></span>
+                <button onclick="clearFile()" style="margin-left:auto;background:none;border:none;
+                    color:var(--grey);cursor:pointer;font-size:18px">×</button>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="uploadBtn" onclick="uploadScores()">
+            Upload Score Sheet
+        </button>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card-title">Excel Template Format</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>matric_number</th>
+                    <th>ca_score</th>
+                    <th>exam_score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>U22TE1022</td>
+                    <td>25</td>
+                    <td>62</td>
+                </tr>
+                <tr>
+                    <td>U22TE1023</td>
+                    <td>18</td>
+                    <td>45</td>
+                </tr>
+                <tr>
+                    <td>U22EEE1001</td>
+                    <td>28</td>
+                    <td>70</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="padding:16px 20px;font-size:12px;color:var(--grey)">
+            CA score max: 30 · Exam score max: 70 · Save as .xlsx before uploading
+        </p>
+    </div>
+</div>
+
+<div id="section-history" style="display:none">
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Recent Uploads</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Course Offering</th>
+                    <th>Records</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4" style="text-align:center;color:var(--grey);padding:24px">
+                        No upload history available
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let selectedFile = null;
+
+    function showSection(name) {
+        ['upload', 'history'].forEach(s => {
+            document.getElementById(`section-${s}`).style.display = 'none';
+        });
+        document.getElementById(`section-${name}`).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        event.target.closest('.nav-item').classList.add('active');
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) setFile(file);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('uploadZone').classList.add('dragover');
+    }
+
+    function handleDragLeave(e) {
+        document.getElementById('uploadZone').classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('uploadZone').classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) setFile(file);
+    }
+
+    function setFile(file) {
+        if (!file.name.endsWith('.xlsx')) {
+            showAlert('uploadAlert', 'Only .xlsx files are accepted', 'error');
+            return;
+        }
+        selectedFile = file;
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('filePreview').style.display = 'block';
+        document.getElementById('uploadZone').style.display = 'none';
+    }
+
+    function clearFile() {
+        selectedFile = null;
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('uploadZone').style.display = 'block';
+        document.getElementById('fileInput').value = '';
+    }
+
+    async function uploadScores() {
+        const courseId = document.getElementById('courseOfferingId').value;
+        if (!courseId) return showAlert('uploadAlert', 'Enter a course offering ID', 'error');
+        if (!selectedFile) return showAlert('uploadAlert', 'Select a score sheet file', 'error');
+
+        const btn = document.getElementById('uploadBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span>Uploading...';
+
+        const formData = new FormData();
+        formData.append('course_offering_id', courseId);
+        formData.append('file', selectedFile);
+
+        const res = await api('POST', '/scores/upload', formData, true);
+        const data = await res.json();
+
+        if (res.ok) {
+            showAlert('uploadAlert',
+                `✓ Upload successful — ${data.records_saved} records saved. Awaiting HOD approval.`
+            );
+            clearFile();
+            document.getElementById('courseOfferingId').value = '';
+        } else {
+            const detail = typeof data.detail === 'object'
+                ? data.detail.message + ' — ' + (data.detail.errors || [])
+                    .map(e => `Row ${e.row}: ${e.error}`).join(', ')
+                : data.detail;
+            showAlert('uploadAlert', detail, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Upload Score Sheet';
+    }
+</script>
+{% endblock %}

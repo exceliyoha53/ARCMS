@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCMS — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0a1628;
+            --navy-light: #112240;
+            --green: #00b894;
+            --green-dim: #00695c;
+            --gold: #f0a500;
+            --white: #e8edf5;
+            --grey: #8892a4;
+            --border: #1e3a5f;
+            --error: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--navy);
+            color: var(--white);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* geometric background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 184, 148, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 184, 148, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .container {
+            display: flex;
+            width: 900px;
+            height: 520px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        /* left panel — institution identity */
+        .left-panel {
+            width: 45%;
+            background: linear-gradient(160deg, var(--green-dim), var(--navy-light));
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* decorative diagonal stripe */
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(0, 184, 148, 0.15);
+            transform: rotate(45deg);
+        }
+
+        .institution-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-icon {
+            width: 44px;
+            height: 44px;
+            border: 2px solid var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .badge-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            letter-spacing: 3px;
+            color: var(--green);
+        }
+
+        .left-headline {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .left-headline h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 52px;
+            line-height: 1;
+            letter-spacing: 2px;
+            color: var(--white);
+        }
+
+        .left-headline h1 span {
+            color: var(--green);
+        }
+
+        .left-headline p {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--grey);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .system-label {
+            font-size: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--green-dim);
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        /* right panel — login form */
+        .right-panel {
+            width: 55%;
+            background-color: var(--navy-light);
+            padding: 48px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 3px;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            font-size: 13px;
+            color: var(--grey);
+            margin-bottom: 36px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--grey);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            background: var(--navy);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: 'Source Sans 3', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--green);
+        }
+
+        input::placeholder {
+            color: #3a4a5c;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: var(--green);
+            color: var(--navy);
+            border: none;
+            padding: 14px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-login:hover {
+            background: #00d4aa;
+        }
+
+        .btn-login:active {
+            transform: scale(0.99);
+        }
+
+        .btn-login:disabled {
+            background: var(--green-dim);
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid var(--error);
+            color: #ff6b6b;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Left Panel -->
+    <div class="left-panel">
+        <div class="institution-badge">
+            <div class="badge-icon">✦</div>
+            <div class="badge-text">AFIT</div>
+        </div>
+
+        <div class="left-headline">
+            <h1>ARC<span>MS</span></h1>
+            <p>
+                Academic Result &amp; Course Management System.
+                Secure access for staff and students of the
+                Air Force Institute of Technology.
+            </p>
+        </div>
+
+        <div class="system-label">Secure Portal · Kaduna, Nigeria</div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+        <div class="form-title">Access Portal</div>
+        <div class="form-subtitle">Sign in with your institutional credentials</div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="yourname@afit.edu.ng"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-login" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.classList.remove('visible');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Authenticating...';
+
+        const formData = new FormData();
+        formData.append('username', document.getElementById('email').value);
+        formData.append('password', document.getElementById('password').value);
+
+        try {
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Login failed');
+            }
+
+            // store token and role in sessionStorage
+            sessionStorage.setItem('token', data.access_token);
+            sessionStorage.setItem('role', data.role);
+
+            // redirect based on role
+            const dashboards = {
+                'registrar': '/dashboard/registrar',
+                'hod': '/dashboard/hod',
+                'lecturer': '/dashboard/lecturer',
+                'exam_officer': '/dashboard/exam-officer',
+                'student': '/dashboard/student'
+            };
+
+            window.location.href = dashboards[data.role] || '/';
+
+        } catch (err) {
+            errorMsg.textContent = err.message;
+            errorMsg.classList.add('visible');
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In';
+        }
+    });
+</script>
+
+</body>
+</html>

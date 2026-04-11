@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}HOD Dashboard{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">Approvals</div>
+<a class="nav-item active" onclick="showSection('pending')">
+    <span class="nav-icon">◈</span> Pending Approvals
+</a>
+<a class="nav-item" onclick="showSection('students')">
+    <span class="nav-icon">◉</span> Department Students
+</a>
+{% endblock %}
+
+{% block page_title %}HOD Dashboard{% endblock %}
+
+{% block content %}
+
+<div id="section-pending">
+    <div class="alert" id="approvalAlert"></div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Pending Score Approvals</div>
+            <button class="btn btn-outline" onclick="loadPending()">Refresh</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Title</th>
+                    <th>Credit Units</th>
+                    <th>Students</th>
+                    <th>Uploaded</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="pendingTable">
+                <tr>
+                    <td colspan="6" style="text-align:center;color:var(--grey);padding:24px">
+                        Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="section-students" style="display:none">
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Department Students</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Matric No.</th>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="studentsTable">
+                <tr>
+                    <td colspan="4" style="text-align:center;color:var(--grey);padding:24px">
+                        Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showSection(name) {
+        ['pending', 'students'].forEach(s => {
+            document.getElementById(`section-${s}`).style.display = 'none';
+        });
+        document.getElementById(`section-${name}`).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        event.target.closest('.nav-item').classList.add('active');
+        if (name === 'students') loadStudents();
+    }
+
+    async function loadPending() {
+        const res = await api('GET', '/scores/pending');
+        const tbody = document.getElementById('pendingTable');
+
+        if (!res.ok) {
+            tbody.innerHTML = `<tr><td colspan="6"
+                style="text-align:center;color:var(--error);padding:24px">
+                Failed to load pending scores
+            </td></tr>`;
+            return;
+        }
+
+        const data = await res.json();
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6"
+                style="text-align:center;color:var(--grey);padding:24px">
+                No pending approvals
+            </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td><strong>${item.course_code}</strong></td>
+                <td>${item.course_title}</td>
+                <td>${item.credit_units}</td>
+                <td>${item.student_count} students</td>
+                <td style="color:var(--grey);font-size:13px">
+                    ${new Date(item.last_uploaded_at).toLocaleDateString()}
+                </td>
+                <td>
+                    <button class="btn btn-primary"
+                        onclick="approveScores(${item.course_offering_id}, this)">
+                        Approve
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function approveScores(courseOfferingId, btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span>';
+
+        const res = await api('POST', `/scores/approve/${courseOfferingId}`);
+        const data = await res.json();
+
+        if (res.ok) {
+            showAlert('approvalAlert',
+                `✓ Approved ${data.scores_approved} scores for ${data.students_affected} students. GPA recalculated.`
+            );
+            loadPending();
+        } else {
+            showAlert('approvalAlert', data.detail || 'Approval failed', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Approve';
+        }
+    }
+
+    async function loadStudents() {
+        const res = await api('GET', '/admin/students');
+        if (!res.ok) return;
+        const students = await res.json();
+        const tbody = document.getElementById('studentsTable');
+        tbody.innerHTML = students.map(s => `
+            <tr>
+                <td><strong>${s.matric_number}</strong></td>
+                <td>${s.first_name} ${s.last_name}</td>
+                <td>${s.current_level}L</td>
+                <td><span class="badge badge-${s.status === 'active' ? 'approved' : 'warning'}">
+                    ${s.status}
+                </span></td>
+            </tr>
+        `).join('');
+    }
+
+    loadPending();
+</script>
+{% endblock %}

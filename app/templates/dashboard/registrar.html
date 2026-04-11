@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Dashboard{% endblock %}
+<!--using unicode symbols-->
+{% block sidebar_nav %}
+<div class="nav-section">Management</div>
+<a class="nav-item active" onclick="showSection('overview')">
+    <span class="nav-icon">◈</span> Overview
+</a>
+<a class="nav-item" onclick="showSection('students')">
+    <span class="nav-icon">◉</span> Students
+</a>
+<a class="nav-item" onclick="showSection('departments')">
+    <span class="nav-icon">◫</span> Departments
+</a>
+<a class="nav-item" onclick="showSection('sessions')">
+    <span class="nav-icon">◷</span> Sessions
+</a>
+<div class="nav-section">System</div>
+<a class="nav-item" onclick="showSection('users')">
+    <span class="nav-icon">◎</span> User Accounts
+</a>
+{% endblock %}
+
+{% block page_title %}Registrar Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Overview Section -->
+<div id="section-overview">
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value" id="statStudents">—</div>
+            <div class="stat-sub">Registered in system</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Departments</div>
+            <div class="stat-value" id="statDepts">—</div>
+            <div class="stat-sub">Active departments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Current Session</div>
+            <div class="stat-value" id="statSession" style="font-size:24px">—</div>
+            <div class="stat-sub">Academic year</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Recent Students</div>
+            <button class="btn btn-primary" onclick="showSection('students')">
+                View All
+            </button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Matric No.</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="recentStudentsTable">
+                <tr>
+                    <td colspan="5" style="text-align:center;color:var(--grey);padding:24px">
+                        Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Students Section -->
+<div id="section-students" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Register New Student</div>
+        <div class="alert" id="studentAlert"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>First Name</label>
+                <input type="text" id="firstName" placeholder="e.g. Excel">
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" id="lastName" placeholder="e.g. Iyoha">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Matric Number</label>
+                <input type="text" id="matricNumber" placeholder="e.g. U22TE1022">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="studentEmail" placeholder="student@afit.edu.ng">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Department</label>
+                <select id="deptSelect">
+                    <option value="">Select department...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Entry Year</label>
+                <input type="number" id="entryYear" placeholder="e.g. 2022" min="2000" max="2030">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="registerStudent()">
+            Register Student
+        </button>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">All Students</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Matric No.</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="allStudentsTable">
+                <tr>
+                    <td colspan="5" style="text-align:center;color:var(--grey);padding:24px">
+                        Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Departments Section -->
+<div id="section-departments" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Create Department</div>
+        <div class="alert" id="deptAlert"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Department Name</label>
+                <input type="text" id="deptName" placeholder="e.g. Telecommunications Engineering">
+            </div>
+            <div class="form-group">
+                <label>Department Code</label>
+                <input type="text" id="deptCode" placeholder="e.g. TCE">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="createDepartment()">
+            Create Department
+        </button>
+    </div>
+</div>
+
+<!-- Sessions Section -->
+<div id="section-sessions" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Create Academic Session</div>
+        <div class="alert" id="sessionAlert"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Session Name</label>
+                <input type="text" id="sessionName" placeholder="e.g. 2025/2026">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="createSession()">
+            Create Session
+        </button>
+    </div>
+</div>
+
+<!-- Users Section -->
+<div id="section-users" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Create Staff Account</div>
+        <div class="alert" id="userAlert"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="staffEmail" placeholder="staff@afit.edu.ng">
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select id="staffRole">
+                    <option value="lecturer">Lecturer</option>
+                    <option value="hod">Head of Department</option>
+                    <option value="exam_officer">Exam Officer</option>
+                    <option value="registrar">Registrar</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Temporary Password</label>
+                <input type="text" id="staffPassword" placeholder="Temporary password">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="createStaff()">
+            Create Account
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const sections = ['overview', 'students', 'departments', 'sessions', 'users'];
+
+    function showSection(name) {
+        sections.forEach(s => {
+            document.getElementById(`section-${s}`).style.display = 'none';
+        });
+        document.getElementById(`section-${name}`).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        event.target.closest('.nav-item').classList.add('active');
+    }
+
+    async function loadOverview() {
+        const res = await api('GET', '/admin/students');
+        if (res.ok) {
+            const students = await res.json();
+            document.getElementById('statStudents').textContent = students.length;
+
+            const tbody = document.getElementById('recentStudentsTable');
+            const recent = students.slice(0, 8);
+            tbody.innerHTML = recent.map(s => `
+                <tr>
+                    <td><strong>${s.matric_number}</strong></td>
+                    <td>${s.first_name} ${s.last_name}</td>
+                    <td>${s.department}</td>
+                    <td>${s.current_level}L</td>
+                    <td><span class="badge badge-approved">${s.status}</span></td>
+                </tr>
+            `).join('');
+
+            // also populate all students table
+            const allTbody = document.getElementById('allStudentsTable');
+            allTbody.innerHTML = students.map(s => `
+                <tr>
+                    <td><strong>${s.matric_number}</strong></td>
+                    <td>${s.first_name} ${s.last_name}</td>
+                    <td>${s.department}</td>
+                    <td>${s.current_level}L</td>
+                    <td><span class="badge badge-approved">${s.status}</span></td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    async function loadDepartments() {
+        // populate dept dropdown for student registration
+        // departments come from creating them — no list endpoint yet
+        // we'll add one soon
+    }
+
+    async function createDepartment() {
+        const name = document.getElementById('deptName').value;
+        const code = document.getElementById('deptCode').value;
+        if (!name || !code) return showAlert('deptAlert', 'Fill in all fields', 'error');
+
+        const res = await api('POST', `/admin/departments?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        if (res.ok) {
+            showAlert('deptAlert', `Department ${data.name} created successfully`);
+            document.getElementById('deptName').value = '';
+            document.getElementById('deptCode').value = '';
+        } else {
+            showAlert('deptAlert', data.detail || 'Failed', 'error');
+        }
+    }
+
+    async function createSession() {
+        const name = document.getElementById('sessionName').value;
+        if (!name) return showAlert('sessionAlert', 'Enter a session name', 'error');
+
+        const res = await api('POST', `/admin/sessions?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        if (res.ok) {
+            showAlert('sessionAlert', data.message);
+            document.getElementById('statSession').textContent = name;
+            document.getElementById('sessionName').value = '';
+        } else {
+            showAlert('sessionAlert', data.detail || 'Failed', 'error');
+        }
+    }
+
+    async function createStaff() {
+        const email = document.getElementById('staffEmail').value;
+        const role = document.getElementById('staffRole').value;
+        const password = document.getElementById('staffPassword').value;
+        if (!email || !password) return showAlert('userAlert', 'Fill in all fields', 'error');
+
+        const res = await api('POST', '/auth/register', { email, password, role });
+        const data = await res.json();
+        if (res.ok) {
+            showAlert('userAlert', `Account created for ${email}`);
+            document.getElementById('staffEmail').value = '';
+            document.getElementById('staffPassword').value = '';
+        } else {
+            showAlert('userAlert', data.detail || 'Failed', 'error');
+        }
+    }
+
+    async function registerStudent() {
+        showAlert('studentAlert', 'Student registration requires department ID. Use Swagger /admin/students for now.', 'warning');
+    }
+
+    // load on page start
+    loadOverview();
+</script>
+{% endblock %}

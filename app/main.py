@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
-from app.routers import auth, scores, results, transcript, admin
+from app.routers import auth, scores, results, transcript, admin, pages
 from app.database import connection_pool
 
 load_dotenv()
@@ -56,6 +56,7 @@ app.add_middleware(
 # files in app/static/ are accessible at /static/filename
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+app.include_router(pages.router)
 app.include_router(auth.router)
 app.include_router(scores.router)
 app.include_router(results.router)
