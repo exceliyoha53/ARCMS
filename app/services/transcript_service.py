@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader  # renders HTML templates
@@ -12,9 +13,29 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # create folder if it doesn't exist
 template_env = Environment(loader=FileSystemLoader("app/templates/transcript"))
 
 
-def generate_transcript_pdf(transcript_data: dict) -> str:
+async def generate_transcript_pdf(transcript_data: dict) -> str:
     """
-    Generates an official PDF transcript from student result data.
+    Async wrapper for the transcript generation process.
+
+    Pushes the heavy WeasyPrint CPU-bound task to a background thread using
+    asyncio.to_thread. This prevents the FastAPI event loop from being blocked,
+    ensuring the server remains responsive to other requests while the PDF
+    is being rendered.
+
+    Parameters:
+        transcript_data (dict): The complete dataset required for the transcript.
+
+    Returns:
+        str: Absolute file path to the generated PDF.
+    """
+    return await asyncio.to_thread(
+        _build_pdf_sync, transcript_data
+    )  # moves into a seperate thread
+
+
+def _build_pdf_sync(transcript_data: dict) -> str:
+    """
+    The actual synchronous function that renders the PDF.
     Renders an HTML template with Jinja2 then converts to PDF with WeasyPrint.
     The PDF is saved temporarily and the file path is returned.
     The calling router deletes the file after sending it to the client.
@@ -29,7 +50,7 @@ def generate_transcript_pdf(transcript_data: dict) -> str:
             purpose (str): Reason for transcript request
 
     Returns:
-        str: Absolute file path to the generated PDF
+        str: Absolute file path to the generated PDF.
     """
     student = transcript_data["student"]
     results = transcript_data["results"]

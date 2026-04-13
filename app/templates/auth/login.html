@@ -1,71 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARCMS — Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --navy: #0a1628;
-            --navy-light: #112240;
-            --green: #00b894;
-            --green-dim: #00695c;
-            --gold: #f0a500;
-            --white: #e8edf5;
-            --grey: #8892a4;
-            --border: #1e3a5f;
-            --error: #e74c3c;
+            --navy: #F8F9FA;
+            --navy-light: #FFFFFF;
+            --green: #002F6C;
+            --green-dim: #001F4A;
+            --gold: #C5A000;
+            --white: #1A2A44;
+            --grey: #6B7280;
+            --border: #E5E7EB;
+            --error: #C8102E;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            background-color: var(--navy);
-            color: var(--white);
-            font-family: 'Source Sans 3', sans-serif;
+            background: linear-gradient(135deg, #002F6C 0%, #001F4A 50%, #00AEEF 100%);
+            color: #1A2A44;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
 
-        /* geometric background pattern */
         body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image:
-                linear-gradient(rgba(0, 184, 148, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 184, 148, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
+            display: none;
         }
 
         .container {
             display: flex;
             width: 900px;
             height: 520px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
             position: relative;
         }
 
-        /* left panel — institution identity */
         .left-panel {
             width: 45%;
-            background: linear-gradient(160deg, var(--green-dim), var(--navy-light));
+            background: rgba(0, 0, 0, 0.2);
             padding: 48px 40px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            border-right: 1px solid var(--border);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
 
-        /* decorative diagonal stripe */
         .left-panel::after {
             content: '';
             position: absolute;
@@ -83,63 +77,51 @@
             gap: 12px;
         }
 
-        .badge-icon {
-            width: 44px;
-            height: 44px;
-            border: 2px solid var(--green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+        .logo-img {
+            height: 55px;
+            /* Adjust this number to make the logo bigger or smaller */
+            width: auto;
+            object-fit: contain;
         }
 
         .badge-text {
-            font-family: 'Bebas Neue', sans-serif;
+            color: #FFFFFF;
             font-size: 22px;
-            letter-spacing: 3px;
-            color: var(--green);
+            /* Made slightly larger to match a real logo */
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        .left-headline {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .badge-text {
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 700;
         }
 
         .left-headline h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 52px;
-            line-height: 1;
-            letter-spacing: 2px;
-            color: var(--white);
+            color: #FFFFFF;
+            font-family: system-ui;
+            font-weight: 800;
+            font-size: 42px;
         }
 
         .left-headline h1 span {
-            color: var(--green);
+            color: #00AEEF;
         }
 
         .left-headline p {
-            margin-top: 16px;
-            font-size: 13px;
-            color: var(--grey);
-            line-height: 1.6;
-            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .system-label {
-            font-size: 10px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--green-dim);
-            border-top: 1px solid var(--border);
-            padding-top: 16px;
+            color: rgba(255, 255, 255, 0.4);
+            border-top-color: rgba(255, 255, 255, 0.1);
         }
 
         /* right panel — login form */
         .right-panel {
             width: 55%;
-            background-color: var(--navy-light);
+            background: #FFFFFF;
             padding: 48px 44px;
             display: flex;
             flex-direction: column;
@@ -147,18 +129,18 @@
         }
 
         .form-title {
-            font-family: 'Bebas Neue', sans-serif;
+            color: #1A2A44;
+            font-family: system-ui;
+            font-weight: 800;
             font-size: 28px;
-            letter-spacing: 3px;
-            color: var(--white);
+            letter-spacing: 0;
             margin-bottom: 8px;
         }
 
         .form-subtitle {
-            font-size: 13px;
-            color: var(--grey);
-            margin-bottom: 36px;
-            font-weight: 300;
+            color: #6B7280;
+            font-size: 15px;
+            margin-bottom: 32px;
         }
 
         .form-group {
@@ -166,29 +148,27 @@
         }
 
         label {
-            display: block;
-            font-size: 11px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--grey);
-            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
             font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
         }
 
         input {
             width: 100%;
-            background: var(--navy);
-            border: 1px solid var(--border);
-            color: var(--white);
-            padding: 12px 16px;
-            font-size: 14px;
-            font-family: 'Source Sans 3', sans-serif;
-            outline: none;
-            transition: border-color 0.2s;
+            height: 48px;
+            padding: 0 16px;
+            background: #F9FAFB;
+            border: 1px solid #D1D5DB;
+            color: #1A2A44;
+            border-radius: 6px;
+            font-size: 15px;
         }
 
         input:focus {
-            border-color: var(--green);
+            border-color: #002F6C;
+            box-shadow: 0 0 0 3px rgba(0, 47, 108, 0.1);
         }
 
         input::placeholder {
@@ -197,20 +177,22 @@
 
         .btn-login {
             width: 100%;
-            background: var(--green);
-            color: var(--navy);
-            border: none;
-            padding: 14px;
-            font-family: 'Bebas Neue', sans-serif;
+            height: 48px;
+            background: #002F6C;
+            color: #FFFFFF;
+            font-family: system-ui;
+            font-weight: 700;
             font-size: 16px;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            border: none;
             cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s, transform 0.1s;
+            margin-top: 10px;
+            transition: background 0.2s;
         }
 
         .btn-login:hover {
-            background: #00d4aa;
+            background: #001F4A;
         }
 
         .btn-login:active {
@@ -237,115 +219,106 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <!-- Left Panel -->
-    <div class="left-panel">
-        <div class="institution-badge">
-            <div class="badge-icon">✦</div>
-            <div class="badge-text">AFIT</div>
-        </div>
-
-        <div class="left-headline">
-            <h1>ARC<span>MS</span></h1>
-            <p>
-                Academic Result &amp; Course Management System.
-                Secure access for staff and students of the
-                Air Force Institute of Technology.
-            </p>
-        </div>
-
-        <div class="system-label">Secure Portal · Kaduna, Nigeria</div>
-    </div>
-
-    <!-- Right Panel -->
-    <div class="right-panel">
-        <div class="form-title">Access Portal</div>
-        <div class="form-subtitle">Sign in with your institutional credentials</div>
-
-        <div class="error-msg" id="errorMsg"></div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input
-                    type="email"
-                    id="email"
-                    placeholder="yourname@afit.edu.ng"
-                    required
-                    autocomplete="email"
-                >
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="institution-badge">
+                <img src="{{ url_for('static', path='images/afit-logo.png') }}" alt="AFIT Logo" class="logo-img">
+                <div class="badge-text">AFIT</div>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="••••••••"
-                    required
-                >
+            <div class="left-headline">
+                <h1>ARC<span>MS</span></h1>
+                <p>
+                    Academic Result &amp; Course Management System.
+                    Secure access for staff and students of the
+                    Air Force Institute of Technology.
+                </p>
             </div>
 
-            <button type="submit" class="btn-login" id="loginBtn">
-                Sign In
-            </button>
-        </form>
+            <div class="system-label">Secure Portal · Kaduna, Nigeria</div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="form-title">Access Portal</div>
+            <div class="form-subtitle">Sign in with your institutional credentials</div>
+
+            <div class="error-msg" id="errorMsg"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="yourname@afit.edu.ng" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    const form = document.getElementById('loginForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const loginBtn = document.getElementById('loginBtn');
+    <script>
+        const form = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('errorMsg');
+        const loginBtn = document.getElementById('loginBtn');
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        errorMsg.classList.remove('visible');
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Authenticating...';
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.classList.remove('visible');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Authenticating...';
 
-        const formData = new FormData();
-        formData.append('username', document.getElementById('email').value);
-        formData.append('password', document.getElementById('password').value);
+            const formData = new FormData();
+            formData.append('username', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
 
-        try {
-            const response = await fetch('/auth/login', {
-                method: 'POST',
-                body: formData
-            });
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.detail || 'Login failed');
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Login failed');
+                }
+
+                // store token and role in sessionStorage
+                sessionStorage.setItem('token', data.access_token);
+                sessionStorage.setItem('role', data.role);
+
+                // redirect based on role
+                const dashboards = {
+                    'registrar': '/dashboard/registrar',
+                    'hod': '/dashboard/hod',
+                    'lecturer': '/dashboard/lecturer',
+                    'exam_officer': '/dashboard/exam-officer',
+                    'student': '/dashboard/student'
+                };
+
+                window.location.href = dashboards[data.role] || '/';
+
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.classList.add('visible');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
             }
-
-            // store token and role in sessionStorage
-            sessionStorage.setItem('token', data.access_token);
-            sessionStorage.setItem('role', data.role);
-
-            // redirect based on role
-            const dashboards = {
-                'registrar': '/dashboard/registrar',
-                'hod': '/dashboard/hod',
-                'lecturer': '/dashboard/lecturer',
-                'exam_officer': '/dashboard/exam-officer',
-                'student': '/dashboard/student'
-            };
-
-            window.location.href = dashboards[data.role] || '/';
-
-        } catch (err) {
-            errorMsg.textContent = err.message;
-            errorMsg.classList.add('visible');
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Sign In';
-        }
-    });
-</script>
+        });
+    </script>
 
 </body>
+
 </html>

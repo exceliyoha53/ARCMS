@@ -67,3 +67,42 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-04-11 12:37:24,104 [INFO] app.main — ARCMS connection starting up...
 2026-04-11 12:37:24,105 [INFO] app.main — Database connection pool initialized
 2026-04-11 12:37:45,007 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-11 12:55:27,471 [INFO] app.main — ARCMS connection starting up...
+2026-04-11 12:55:27,506 [INFO] app.main — Database connection pool initialized
+2026-04-11 12:55:44,649 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 12:55:44,649 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 13:14:55,613 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-11 13:47:00,725 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-11 13:47:00,739 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-11 13:47:04,752 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-11 13:51:51,586 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
+2026-04-13 10:40:50,250 [INFO] app.main — ARCMS connection starting up...
+2026-04-13 10:40:50,263 [INFO] app.main — Database connection pool initialized
+2026-04-13 10:41:28,529 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 10:41:28,531 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 10:41:30,396 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 10:42:14,756 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 10:42:14,759 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 10:42:15,755 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 10:43:36,702 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 10:43:36,702 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 10:43:37,716 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 10:50:01,624 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 10:50:01,689 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 10:50:05,309 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 11:03:42,855 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 11:03:42,859 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 11:03:44,087 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 11:09:49,083 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 11:09:49,083 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 11:09:50,182 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 11:18:49,961 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 11:18:49,962 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 11:18:51,147 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 15:07:30,599 [INFO] app.main — ARCMS connection starting up...
+2026-04-13 15:07:30,611 [INFO] app.main — Database connection pool initialized
+2026-04-13 15:08:13,186 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 15:39:26,147 [INFO] app.auth — Token created for: registrar@afit.edu.ng role: registrar
+2026-04-13 15:39:26,148 [INFO] app.routers.auth — User logged in: registrar@afit.edu.ng role: registrar
+2026-04-13 15:39:29,083 [INFO] app.routers.admin — registrar@afit.edu.ng fetched student list — 0 students
+2026-04-13 16:00:49,426 [INFO] app.main — Database pool closed. ARCMS shut down cleanly.
