@@ -7,3 +7,5 @@ api.log
 uploads/
 generated_transcripts/
 database_file.py
+*.log
+*.xlsx

@@ -101,7 +101,7 @@ def get_student_results(
                 sc.grade_point,
                 sem.id AS semester_id,
                 sess.name AS session_name,
-                sem.semester_number
+                sem.semester_number,
                 r.level AS level
             FROM scores sc
             JOIN registrations r ON sc.registration_id = r.id

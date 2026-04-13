@@ -13,7 +13,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # create folder if it doesn't exist
 template_env = Environment(loader=FileSystemLoader("app/templates/transcript"))
 
 
-async def generate_transcript_pdf(transcript_data: dict) -> str:
+def generate_transcript_pdf(transcript_data: dict) -> str:
     """
     Async wrapper for the transcript generation process.
 
@@ -28,9 +28,7 @@ async def generate_transcript_pdf(transcript_data: dict) -> str:
     Returns:
         str: Absolute file path to the generated PDF.
     """
-    return await asyncio.to_thread(
-        _build_pdf_sync, transcript_data
-    )  # moves into a seperate thread
+    return _build_pdf_sync(transcript_data)
 
 
 def _build_pdf_sync(transcript_data: dict) -> str:
