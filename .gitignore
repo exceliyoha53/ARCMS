@@ -3,7 +3,7 @@ venv/
 __pycache__/
 *.pyc
 .ruff_cache/
-api.log
+*.log
 uploads/
 generated_transcripts/
 database_file.py
