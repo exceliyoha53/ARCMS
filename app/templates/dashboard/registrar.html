@@ -20,11 +20,75 @@
 <a class="nav-item" onclick="showSection('users')">
     <span class="nav-icon">◎</span> User Accounts
 </a>
+<div class="nav-section">Data Import</div>
+<a class="nav-item" onclick="showSection('import')">
+    <span class="nav-icon">⬆</span> Bulk Import
+</a>
 {% endblock %}
 
 {% block page_title %}Registrar Dashboard{% endblock %}
 
 {% block content %}
+<!-- Import Section -->
+<div id="section-import" style="display:none">
+    <div class="form-card">
+        <div class="form-card-title">Bulk Student Import</div>
+        <div class="alert" id="studentImportAlert"></div>
+        <p style="color:var(--grey);font-size:13px;margin-bottom:20px;line-height:1.6">
+            Upload an Excel file to create student accounts in bulk.
+            Default password for each student is their matric number.
+            Required columns: matric_number · first_name · last_name ·
+            email · department_code · entry_year · level
+        </p>
+        <div class="upload-zone" id="studentImportZone" onclick="document.getElementById('studentImportFile').click()">
+            <div class="upload-icon">👥</div>
+            <p><strong>Click to select</strong> student import Excel file</p>
+        </div>
+        <input type="file" id="studentImportFile" accept=".xlsx" style="display:none"
+            onchange="handleStudentImport(event)">
+        <div id="studentImportPreview" style="display:none;margin:16px 0">
+            <div style="background:rgba(0,47,108,0.08);border:1px solid #002F6C;
+                padding:12px 16px;display:flex;align-items:center;gap:12px">
+                <span>📄</span>
+                <span id="studentImportName" style="color:#002F6C"></span>
+                <button onclick="clearStudentImport()" style="margin-left:auto;background:none;border:none;
+                    color:var(--grey);cursor:pointer;font-size:18px">×</button>
+            </div>
+        </div>
+        <button class="btn btn-primary" id="studentImportBtn" onclick="submitStudentImport()" style="margin-top:12px">
+            Import Students
+        </button>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card-title">Historical Score Import</div>
+        <div class="alert" id="historyImportAlert"></div>
+        <p style="color:var(--grey);font-size:13px;margin-bottom:20px;line-height:1.6">
+            Import past semester results for existing students.
+            All imported scores are automatically approved and GPA is recalculated.
+            Required columns: matric_number · course_code · session_name ·
+            semester_number · ca_score · exam_score · level
+        </p>
+        <div class="upload-zone" id="historyImportZone" onclick="document.getElementById('historyImportFile').click()">
+            <div class="upload-icon">📚</div>
+            <p><strong>Click to select</strong> historical scores Excel file</p>
+        </div>
+        <input type="file" id="historyImportFile" accept=".xlsx" style="display:none"
+            onchange="handleHistoryImport(event)">
+        <div id="historyImportPreview" style="display:none;margin:16px 0">
+            <div style="background:rgba(0,47,108,0.08);border:1px solid #002F6C;
+                padding:12px 16px;display:flex;align-items:center;gap:12px">
+                <span>📄</span>
+                <span id="historyImportName" style="color:#002F6C"></span>
+                <button onclick="clearHistoryImport()" style="margin-left:auto;background:none;border:none;
+                    color:var(--grey);cursor:pointer;font-size:18px">×</button>
+            </div>
+        </div>
+        <button class="btn btn-primary" id="historyImportBtn" onclick="submitHistoryImport()" style="margin-top:12px">
+            Import Historical Scores
+        </button>
+    </div>
+</div>
 
 <!-- Overview Section -->
 <div id="section-overview">
@@ -216,15 +280,110 @@
 {% block scripts %}
 <script>
     const sections = ['overview', 'students', 'departments', 'sessions', 'users'];
+    let studentImportFile = null;
+    let historyImportFile = null;
+
+    function handleStudentImport(e) {
+        studentImportFile = e.target.files[0];
+        document.getElementById('studentImportName').textContent = studentImportFile.name;
+        document.getElementById('studentImportPreview').style.display = 'block';
+        document.getElementById('studentImportZone').style.display = 'none';
+    }
+
+    function clearStudentImport() {
+        studentImportFile = null;
+        document.getElementById('studentImportPreview').style.display = 'none';
+        document.getElementById('studentImportZone').style.display = 'block';
+    }
+
+    function handleHistoryImport(e) {
+        historyImportFile = e.target.files[0];
+        document.getElementById('historyImportName').textContent = historyImportFile.name;
+        document.getElementById('historyImportPreview').style.display = 'block';
+        document.getElementById('historyImportZone').style.display = 'none';
+    }
+
+    function clearHistoryImport() {
+        historyImportFile = null;
+        document.getElementById('historyImportPreview').style.display = 'none';
+        document.getElementById('historyImportZone').style.display = 'block';
+    }
+
+    async function submitStudentImport() {
+        if (!studentImportFile) {
+            return showAlert('studentImportAlert', 'Select a file first', 'error');
+        }
+        const btn = document.getElementById('studentImportBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span>Importing...';
+
+        const formData = new FormData();
+        formData.append('file', studentImportFile);
+
+        const res = await api('POST', '/import/students', formData, true);
+        const data = await res.json();
+
+        if (res.ok) {
+            showAlert('studentImportAlert',
+                `✓ Import complete — ${data.created} created, ${data.skipped} skipped`
+            );
+            clearStudentImport();
+            loadOverview();
+        } else {
+            const msg = typeof data.detail === 'object'
+                ? data.detail.message : data.detail;
+            showAlert('studentImportAlert', msg, 'error');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Import Students';
+    }
+
+    async function submitHistoryImport() {
+        if (!historyImportFile) {
+            return showAlert('historyImportAlert', 'Select a file first', 'error');
+        }
+        const btn = document.getElementById('historyImportBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span>Importing...';
+
+        const formData = new FormData();
+        formData.append('file', historyImportFile);
+
+        const res = await api('POST', '/import/historical-scores', formData, true);
+        const data = await res.json();
+
+        if (res.ok) {
+            showAlert('historyImportAlert',
+                `✓ ${data.imported} scores imported, ${data.skipped} skipped. GPA recalculated.`
+            );
+            clearHistoryImport();
+        } else {
+            const msg = typeof data.detail === 'object'
+                ? data.detail.message : data.detail;
+            showAlert('historyImportAlert', msg, 'error');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Import Historical Scores';
+    }
+
 
     function showSection(name) {
         sections.forEach(s => {
             document.getElementById(`section-${s}`).style.display = 'none';
         });
+
         document.getElementById(`section-${name}`).style.display = 'block';
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        event.target.closest('.nav-item').classList.add('active');
+
+
+        document.querySelectorAll('.nav-item').forEach(el => {
+            if (el.getAttribute('onclick').includes(`'${name}'`)) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
     }
+    // -------------------------------------------
 
     async function loadOverview() {
         const res = await api('GET', '/admin/students');
@@ -244,7 +403,6 @@
                 </tr>
             `).join('');
 
-            // also populate all students table
             const allTbody = document.getElementById('allStudentsTable');
             allTbody.innerHTML = students.map(s => `
                 <tr>
@@ -260,8 +418,6 @@
 
     async function loadDepartments() {
         // populate dept dropdown for student registration
-        // departments come from creating them — no list endpoint yet
-        // we'll add one soon
     }
 
     async function createDepartment() {
