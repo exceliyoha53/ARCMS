@@ -7,5 +7,4 @@ __pycache__/
 uploads/
 generated_transcripts/
 database_file.py
-*.log
 *.xlsx
