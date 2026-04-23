@@ -587,6 +587,10 @@
         </nav>
         <div class="sidebar-footer">
             <div class="user-info" id="userEmail">—</div>
+            <button class="btn-logout" onclick="openPasswordModal()"
+                style="margin-bottom: 8px; border-color: rgba(255, 255, 255, 0.4); color: #FFFFFF;">
+                Change Password
+            </button>
             <button class="btn-logout" onclick="logout()">Sign Out</button>
         </div>
     </aside>
@@ -603,9 +607,42 @@
             {% block content %}{% endblock %}
         </div>
     </div>
+    </div>
+    <div id="passwordModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+        <div
+            style="background:var(--navy-light); border:1px solid var(--border); border-radius:8px; padding:32px; width:400px; max-width:90vw;">
+            <h3
+                style="font-size:16px; font-weight:700; color:var(--white); margin-bottom:24px; padding-bottom:12px; border-bottom:1px solid var(--border)">
+                Change Password
+            </h3>
+            <div class="alert" id="pwAlert"></div>
+            <div class="form-group" style="margin-bottom:16px">
+                <label>Current Password</label>
+                <input type="password" id="currentPw" placeholder="Your current password">
+            </div>
+            <div class="form-group" style="margin-bottom:16px">
+                <label>New Password</label>
+                <input type="password" id="newPw" placeholder="New password">
+            </div>
+            <div class="form-group" style="margin-bottom:24px">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPw" placeholder="Confirm new password">
+            </div>
+            <div style="display:flex; gap:12px">
+                <button class="btn btn-primary" onclick="submitPasswordChange()" style="flex:1">
+                    Change Password
+                </button>
+                <button class="btn btn-outline" onclick="closePasswordModal()" style="flex:1">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 
+
+    // shared auth utilities used by all dashboards...
     <script>
-        // shared auth utilities used by all dashboards
         const token = sessionStorage.getItem('token');
         const role = sessionStorage.getItem('role');
 
@@ -650,6 +687,64 @@
             el.textContent = message;
             el.className = `alert alert-${type} visible`;
             setTimeout(() => el.classList.remove('visible'), 5000);
+        }
+
+        function openPasswordModal() {
+
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            // Clear inputs when closed
+            document.getElementById('currentPw').value = '';
+            document.getElementById('newPw').value = '';
+            document.getElementById('confirmPw').value = '';
+            document.getElementById('pwAlert').classList.remove('visible');
+        }
+
+        async function submitPasswordChange() {
+            const current = document.getElementById('currentPw').value;
+            const newPw = document.getElementById('newPw').value;
+            const confirm = document.getElementById('confirmPw').value;
+
+            // Basic Validation
+            if (!current || !newPw || !confirm) {
+                return showAlert('pwAlert', 'All fields are required', 'error');
+            }
+            if (newPw !== confirm) {
+                return showAlert('pwAlert', 'New passwords do not match', 'error');
+            }
+            if (newPw.length < 6) {
+                return showAlert('pwAlert', 'New password must be at least 6 characters', 'error');
+            }
+
+            const btn = document.querySelector('#passwordModal .btn-primary');
+            btn.textContent = 'Updating...';
+            btn.disabled = true;
+
+            try {
+                // Change the URL below to match your actual FastAPI auth endpoint route
+                const res = await api('POST', '/change-password', {
+                    current_password: current,
+                    new_password: newPw
+                });
+
+                if (res.ok) {
+                    showAlert('pwAlert', 'Password updated successfully!', 'success');
+                    setTimeout(() => {
+                        closePasswordModal();
+                    }, 1500);
+                } else {
+                    const data = await res.json();
+                    showAlert('pwAlert', data.detail || 'Failed to update password', 'error');
+                }
+            } catch (err) {
+                showAlert('pwAlert', 'Network error. Please try again.', 'error');
+            } finally {
+                btn.textContent = 'Change Password';
+                btn.disabled = false;
+            }
         }
     </script>
 
